@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emprega Jovem Piauí</title>
+  <style>
+    :root {
+      --azul: #1E3A8A;
+      --verde: #10B981;
+      --amarelo: #FACC15;
+      --bg: #f5f7fa;
+      --texto: #111;
+      --muted: #555;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Arial', sans-serif; background: var(--bg); color: var(--texto); }
+    header { background: var(--azul); color: white; padding: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    header img { width: 50px; height: auto; border-radius: 50%; border: 2px solid white; }
+    header h1 { margin: 0; font-size: 1.8rem; }
+    main { max-width: 900px; margin: 2rem auto; padding: 1rem; }
+    input, textarea, select, button { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; }
+    button { background: var(--verde); color: white; border: none; cursor: pointer; transition: 0.3s; }
+    button:hover { background: var(--azul); }
+    .vaga { background: white; border-radius: 12px; padding: 1rem; margin: 1rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .vaga h3 { margin: 0; color: var(--azul); }
+    .vaga p { margin: 0.3rem 0; }
+    .vaga a { text-decoration: none; color: white; background: var(--amarelo); padding: 0.5rem 0.8rem; border-radius: 6px; display: inline-block; margin-top: 0.5rem; }
+    .formulario { background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .links-externos { background: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .links-externos a { display: block; margin: 0.5rem 0; color: var(--verde); text-decoration: none; font-weight: bold; }
+    .links-externos a:hover { color: var(--azul); }
+    .footer { text-align: center; color: var(--muted); margin-top: 2rem; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/02/Bandeira_do_Piau%C3%AD.svg" alt="Logotipo Piauí">
+    <h1>Emprega Jovem Piauí</h1>
+  </header>
+
+  <main>
+    <div class="links-externos">
+      <h2>Links úteis de pesquisa de emprego no Piauí</h2>
+      <a href="https://www.vagas.com.br/vagas-de-piaui" target="_blank">Vagas.com.br Piauí</a>
+      <a href="https://www.indeed.com.br/empregos?q=&l=Piau%C3%AD" target="_blank">Indeed Piauí</a>
+      <a href="https://www.infojobs.com.br/vagas-em-piaui" target="_blank">InfoJobs Piauí</a>
+      <a href="https://www.empregos.com.br/vagas/piaui" target="_blank">Empregos.com.br Piauí</a>
+      <a href="https://www.catho.com.br/vagas-de-emprego/piaui" target="_blank">Catho Piauí</a>
+    </div>
+
+    <h2>Buscar Vagas</h2>
+    <input type="text" id="busca" placeholder="Pesquise por cargo, empresa ou cidade..." onkeyup="buscarVagas()">
+
+    <div id="lista-vagas"></div>
+
+    <h2>Publicar Nova Vaga</h2>
+    <form id="form-vaga" class="formulario">
+      <input type="text" id="titulo" placeholder="Título da vaga" required>
+      <input type="text" id="empresa" placeholder="Nome da empresa" required>
+      <input type="text" id="cidade" placeholder="Cidade" required>
+      <textarea id="descricao" placeholder="Descrição da vaga" required></textarea>
+      <input type="text" id="link" placeholder="Link para inscrição (opcional)">
+      <button type="submit">Publicar Vaga</button>
+    </form>
+  </main>
+
+  <div class="footer">
+    Salve este arquivo no computador e abra no navegador. Todas as vagas ficam salvas localmente.
+  </div>
+
+<script>
+const form = document.getElementById('form-vaga');
+const listaVagas = document.getElementById('lista-vagas');
+const buscaInput = document.getElementById('busca');
+
+let vagas = JSON.parse(localStorage.getItem('vagas')) || [];
+
+function salvarVagas() { localStorage.setItem('vagas', JSON.stringify(vagas)); }
+
+function exibirVagas(filtro = '') {
+  listaVagas.innerHTML = '';
+  vagas.filter(v => 
+    v.titulo.toLowerCase().includes(filtro) || 
+    v.empresa.toLowerCase().includes(filtro) ||
+    v.cidade.toLowerCase().includes(filtro)
+  ).forEach(v => {
+    const div = document.createElement('div');
+    div.className = 'vaga';
+    div.innerHTML = `<h3>${v.titulo}</h3>
+                     <p><strong>Empresa:</strong> ${v.empresa}</p>
+                     <p><strong>Cidade:</strong> ${v.cidade}</p>
+                     <p>${v.descricao}</p>
+                     ${v.link ? `<a href="${v.link}" target="_blank">Inscrever-se</a>` : ''}`;
+    listaVagas.appendChild(div);
+  });
+}
+
+function buscarVagas() {
+  const filtro = buscaInput.value.toLowerCase();
+  exibirVagas(filtro);
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const novaVaga = {
+    titulo: document.getElementById('titulo').value,
+    empresa: document.getElementById('empresa').value,
+    cidade: document.getElementById('cidade').value,
+    descricao: document.getElementById('descricao').value,
+    link: document.getElementById('link').value
+  };
+  vagas.push(novaVaga);
+  salvarVagas();
+  form.reset();
+  exibirVagas();
+  alert('Vaga publicada com sucesso!');
+});
+
+exibirVagas();
+</script>
+</body>
+</html>
